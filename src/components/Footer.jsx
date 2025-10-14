@@ -23,6 +23,7 @@ export default function Footer() {
           <p>My Account</p>
           <p>Login / Register</p>
           <p>Cart</p>
+          <p>Wishlist</p>
           <p>Shop</p>
         </div>
         <div className="col-12 col-sm-2">
@@ -43,8 +44,9 @@ export default function Footer() {
           </div>
         </div>
       </div>
-      <div className="mt-5">
-        <p className="text-light text-center">
+      <hr />
+      <div className="text-secondary text-center mt-5 pt-3 ">
+        <p className="mb-0">
           Copyright Rimel 2022. All right reserved
         </p>
       </div>
