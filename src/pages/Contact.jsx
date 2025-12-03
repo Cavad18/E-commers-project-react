@@ -8,9 +8,7 @@ export default function Contact() {
         Home / <span className="fw-bold">Contact</span>
       </p>
 
-      {/* Контейнер с двумя колонками */}
       <div className="d-flex gap-4 m-4 flex-wrap">
-        {/* Левая карточка — твоя */}
         <Card className="shadow p-0" style={{ width: "350px" }}>
           <Card.Body className="p-4">
             <Card.Title>
