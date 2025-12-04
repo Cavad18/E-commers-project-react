@@ -1,111 +1,134 @@
-import React, { useState } from "react";
+import axios from "axios";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function UserProducts() {
-  const navigate = useNavigate();
+const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
-  const [products, setProducts] = useState([
-    {
-      id: 1,
-      brand: "Dell 2222",
-      model: "Dell XPS 13",
-      category: "Laptops",
-      imageUrl: "/images/laptop.jpg",
-      price: 1196565656,
-      rating: 5
-    },
-    {
-      id: 2,
-      brand: "123123",
-      model: "123123",
-      category: "1233123",
-      imageUrl: "/images/phonelaptop.jpg",
-      price: 12321,
-      rating: 2
+const UserProducts = () => {
+  const [products, setProducts] = useState([]);
+  const [error, setError] = useState(null);
+  let navigate = useNavigate();
+
+  const getAllProducts = () => {
+    const token = localStorage.getItem("token");
+    axios
+      .get(`${baseUrl}/products`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((response) => {
+        setProducts(response.data);
+      })
+      .catch((error) => {
+        setError("Ошибка при получении списка продуктов");
+        console.error("Ошибка при получении списка продуктов:", error);
+      });
+  };
+
+  useEffect(() => {
+    getAllProducts();
+  }, []);
+
+  const handleImageClick = (imageUrl) => {
+    document.querySelector(".imageInModal").src = imageUrl;
+  };
+
+  const handleDelete = (productId) => {
+    const token = localStorage.getItem("token");
+
+    if (window.confirm("Вы уверены, что хотите удалить этот продукт?")) {
+      axios
+        .delete(`${baseUrl}/products/${productId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then(() => {
+          alert("Продукт успешно удален");
+          getAllProducts();
+        })
+        .catch((error) => {
+          console.error("Ошибка при удалении продукта:", error);
+          alert("Ошибка при удалении продукта");
+        });
     }
-  ]);
+  };
 
-  function handleCreate() {
-    navigate("/create-product");
-  }
+  const handleEdit = (product) => {
+    sessionStorage.setItem("product", JSON.stringify(product));
+    sessionStorage.setItem("formMode", "editProduct");
+    navigate("/product-form");
+  };
 
-  function handleEdit(id) {
-    navigate(`/edit-product/${id}`);
-  }
+  const handleAddNewProduct = () => {
+    sessionStorage.setItem("formMode", "addNewProduct");
+    navigate("/product-form");
+  };
 
-  function handleDelete(id) {
-    if (window.confirm("Ты уверен что хочешь удалить?")) {
-      setProducts(products.filter((p) => p.id !== id));
-    }
+  if (error) {
+    return <div className="alert alert-danger">{error}</div>;
   }
 
   return (
-    <div className="container py-4">
-      <div className="p-3">
-        <button onClick={handleCreate} className="btn btn-info text-white mb-3">
-          Новый продукт
+    <section className="container my-4">
+      <div>
+        <button
+          className="btn btn-primary addNewProdcutBtn"
+          onClick={handleAddNewProduct}
+        >
+          New Product
         </button>
-
-        <table className="table align-middle">
-          <thead>
-            <tr>
-              <th>Id</th>
-              <th>Бренд</th>
-              <th>Модель</th>
-              <th>Категория</th>
-              <th>Изображение</th>
-              <th>Цена</th>
-              <th>Рейтинг</th>
-              <th>Операции</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {products.map((p) => (
-              <tr key={p.id}>
-                <td>{p.id}</td>
-                <td>{p.brand}</td>
-                <td>{p.model}</td>
-                <td>{p.category}</td>
-
-                <td>
-                  <img
-                    src={p.imageUrl}
-                    alt="product"
-                    style={{
-                      width: "120px",
-                      height: "90px",
-                      objectFit: "cover",
-                      borderRadius: "6px"
-                    }}
-                  />
-                </td>
-
-                <td>{p.price} $</td>
-                <td>{p.rating}/5</td>
-
-                <td>
-                  <div className="d-flex gap-2">
-                    <button
-                      className="btn btn-primary btn-sm"
-                      onClick={() => handleEdit(p.id)}
-                    >
-                      Редактировать
-                    </button>
-
-                    <button
-                      className="btn btn-danger btn-sm"
-                      onClick={() => handleDelete(p.id)}
-                    >
-                      Удалить
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
       </div>
-</div>
-);
-}
+
+      <table className="table">
+        <thead>
+          <tr>
+            <th>Id</th>
+            <th>Brand</th>
+            <th>Model</th>
+            <th>Category</th>
+            <th>Image</th>
+            <th>Price</th>
+            <th>Rate</th>
+            <th>Operations</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {products.map((product, index) => (
+            <tr key={product.id}>
+              <td>{index + 1}</td>
+              <td>{product.brand}</td>
+              <td>{product.model}</td>
+              <td>{product.category}</td>
+              <td>
+                <img
+                  src={product.imageUrl}
+                  className="imageInTable"
+                  width="200"
+                  onClick={() => handleImageClick(product.imageUrl)}
+                  alt="Product"
+                />
+              </td>
+              <td>{product.price}$</td>
+              <td>{product.rate}/5</td>
+              <td>
+                <button
+                  className="btn btn-primary mx-2 edit-btn"
+                  onClick={() => handleEdit(product)}
+                >
+                  Edit
+                </button>
+                <button
+                  className="btn btn-primary mx-2 delete-btn"
+                  onClick={() => handleDelete(product.id)}
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  );
+};
+
+export default UserProducts;

@@ -11,6 +11,9 @@ import Product from "../pages/Product";
 import Cart from "../pages/Cart";
 import Checkout from "../pages/Checkout";
 import UserProducts from "../pages/UserProducts";
+import ProductForm from "../pages/ProductForm";
+
+
 
 export default function AppRoutes() {
   return (
@@ -27,6 +30,7 @@ export default function AppRoutes() {
         <Route path="cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/userProducts" element={<UserProducts />} />
+        <Route path="product-form" element={<ProductForm />} />
       </Route>
     </Routes>
   );
